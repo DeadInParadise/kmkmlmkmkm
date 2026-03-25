@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Practice Path</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#f0c040">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PyPractice">
+<link rel="icon" href="./icon-192.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-192.svg">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg:       #0d0f14;
+  --surface:  #161920;
+  --surface2: #1c1f28;
+  --border:   #252830;
+  --border2:  #2e3240;
+  --gold:     #f0c040;
+  --green:    #4af0a0;
+  --red:      #f04060;
+  --blue:     #60a0f0;
+  --text:     #e8eaf0;
+  --muted:    #5a6070;
+  --muted2:   #8890a0;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+
+/* ─── RESET ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── NOISE TEXTURE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,15,20,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 clamp(16px,4vw,48px);
+  display: flex; align-items: center; gap: 0;
+  height: 54px;
+  overflow-x: auto;
+}
+nav::-webkit-scrollbar { display: none; }
+.nav-brand {
+  font-size: 13px; font-weight: 800; color: var(--gold);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-right: 24px; white-space: nowrap; flex-shrink: 0;
+}
+.nav-links { display: flex; gap: 0; }
+.nav-link {
+  background: none; border: none;
+  color: var(--muted2); font-family: var(--sans);
+  font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 0 16px; height: 54px;
+  cursor: pointer; transition: color 0.2s; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  position: relative; top: 1px;
+}
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ─── HERO ─── */
+.hero {
+  padding: clamp(48px,8vw,96px) clamp(16px,4vw,48px) clamp(32px,5vw,64px);
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: center;
+}
+@media(max-width:640px){ .hero { grid-template-columns: 1fr; } }
+.hero-eyebrow {
+  font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-eyebrow::before {
+  content: ''; display: inline-block;
+  width: 24px; height: 1px; background: var(--gold);
+}
+.hero h1 {
+  font-size: clamp(32px, 6vw, 64px); font-weight: 800; line-height: 1.05;
+  margin-bottom: 20px; letter-spacing: -1px;
+}
+.hero h1 em { font-style: normal; color: var(--gold); }
+.hero p {
+  font-size: 15px; color: var(--muted2); max-width: 480px;
+  line-height: 1.7; margin-bottom: 28px;
+}
+.hero-stats {
+  display: flex; gap: 24px; flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-val {
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  color: var(--gold); line-height: 1;
+}
+.stat-label { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+/* RING */
+.progress-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ring-count { font-family: var(--mono); font-size: 13px; color: var(--muted2); text-align: center; }
+svg.ring circle { fill: none; }
+svg.ring .track { stroke: var(--border2); stroke-width: 6; }
+svg.ring .fill {
+  stroke: var(--gold); stroke-width: 6; stroke-linecap: round;
+  stroke-dasharray: 283; stroke-dashoffset: 283;
+  transform: rotate(-90deg); transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1);
+}
+.ring-inner { position: relative; }
+.ring-pct {
+  position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--gold);
+}
+
+/* ─── SECTIONS ─── */
+.page-section { display: none; }
+.page-section.active { display: block; }
+.section-wrap { max-width: 1100px; margin: 0 auto; padding: 0 clamp(16px,4vw,48px) 80px; }
+.section-title-row {
+  padding: 32px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.section-title-row h2 {
+  font-size: clamp(18px,3vw,28px); font-weight: 800; letter-spacing: -0.5px;
+}
+.section-title-row h2 span { color: var(--gold); }
+.section-sub { font-size: 13px; color: var(--muted2); margin-top: 6px; }
+
+/* ─── ROADMAP ─── */
+.roadmap { display: flex; flex-direction: column; gap: 0; position: relative; }
+.roadmap::before {
+  content: '';
+  position: absolute; left: 20px; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, var(--gold), var(--green), transparent);
+  opacity: 0.3;
+}
+.roadmap-item {
+  display: grid; grid-template-columns: 48px 1fr; gap: 20px;
+  padding: 20px 0; position: relative;
+}
+.roadmap-item + .roadmap-item { border-top: 1px solid var(--border); }
+.roadmap-num {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--surface2); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 11px; color: var(--gold);
+  flex-shrink: 0; z-index: 1; margin-top: 2px;
+}
+.roadmap-content h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.roadmap-content p { font-size: 13px; color: var(--muted2); line-height: 1.6; }
+.roadmap-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag {
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 3px; font-weight: 600;
+}
+.tag.concept { background: #0a1525; color: var(--blue); border: 1px solid #1a3050; }
+.tag.practice { background: #0a2010; color: var(--green); border: 1px solid #1a4020; }
+.tag.project { background: #1a1000; color: var(--gold); border: 1px solid #3a2500; }
+
+/* ─── BOOKS ─── */
+.books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 20px; }
+.book-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative; overflow: hidden;
+}
+.book-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+}
+.book-card.primary::before { background: var(--gold); }
+.book-card.secondary::before { background: var(--green); }
+.book-card.supplement::before { background: var(--blue); }
+.book-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.book-badge {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 3px; display: inline-block; margin-bottom: 14px; font-weight: 700;
+}
+.book-badge.primary { background: #1a1200; color: var(--gold); border: 1px solid #3a2800; }
+.book-badge.secondary { background: #0a1a10; color: var(--green); border: 1px solid #1a4020; }
+.book-badge.supplement { background: #0a1520; color: var(--blue); border: 1px solid #1a3050; }
+.book-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+.book-author { font-size: 12px; color: var(--muted2); margin-bottom: 14px; font-family: var(--mono); }
+.book-card p { font-size: 13px; color: var(--muted2); line-height: 1.65; margin-bottom: 14px; }
+.book-pros { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.book-pros li { font-size: 12px; color: var(--muted2); display: flex; gap: 8px; align-items: flex-start; }
+.book-pros li::before { content: '→'; color: var(--gold); flex-shrink: 0; font-family: var(--mono); }
+.book-link {
+  display: inline-block; margin-top: 16px;
+  font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); text-decoration: none;
+  border-bottom: 1px solid var(--border2); padding-bottom: 2px;
+  transition: border-color 0.2s;
+}
+.book-link:hover { border-color: var(--gold); }
+.free-badge {
+  display: inline-block; font-size: 10px; letter-spacing: 1px;
+  background: #0a2010; color: var(--green); border: 1px solid #1a4020;
+  padding: 2px 8px; border-radius: 3px; margin-left: 8px;
+  text-transform: uppercase; font-weight: 700;
+}
+
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 16px; margin-top: 32px; }
+.tip-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 18px;
+}
+.tip-icon { font-size: 22px; margin-bottom: 10px; }
+.tip-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.tip-card p { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+
+/* ─── QUESTIONS ─── */
+.q-controls {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.filter-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted2); padding: 6px 14px; border-radius: 4px;
+  font-family: var(--sans); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s; font-weight: 600;
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: var(--gold); color: var(--gold); background: #1a1200;
+}
+.reset-btn {
+  margin-left: auto;
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); padding: 6px 14px; border-radius: 4px;
+  font-family: var(--sans); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+.q-sections { display: flex; flex-direction: column; gap: 24px; }
+.q-block { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.q-block-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: var(--surface);
+  border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+}
+.q-block-header:hover { background: var(--surface2); }
+.q-block-num {
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 3px; padding: 2px 7px; flex-shrink: 0;
+}
+.q-block-title { font-size: 14px; font-weight: 700; flex: 1; }
+.q-block-prog { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.q-block-prog.done { color: var(--green); }
+.chevron { font-size: 10px; color: var(--muted); transition: transform 0.3s; flex-shrink: 0; }
+.q-block.open .chevron { transform: rotate(90deg); }
+.q-list { display: none; flex-direction: column; }
+.q-block.open .q-list { display: flex; }
+
+.q-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.15s; position: relative;
+}
+.q-item:last-child { border-bottom: none; }
+.q-item:hover { background: var(--surface2); }
+.q-item.done { background: #050e0a; }
+.q-item.done .q-text { text-decoration: line-through; color: var(--muted); }
+.q-item.done .q-hint { color: #2a3a30; }
+
+.check {
+  width: 20px; height: 20px; border: 2px solid var(--border2);
+  border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-size: 11px; font-weight: 700;
+}
+.q-item.done .check { background: var(--green); border-color: var(--green); color: #000; }
+
+.q-body { flex: 1; }
+.q-num { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-bottom: 4px; letter-spacing: 1px; }
+.q-text { font-size: 14px; line-height: 1.6; }
+.q-hint { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+
+.diff {
+  font-size: 9px; padding: 2px 7px; border-radius: 3px;
+  letter-spacing: 1px; text-transform: uppercase; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+}
+.diff.easy { background: #0a2010; color: var(--green); border: 1px solid #1a4020; }
+.diff.med  { background: #1a1200; color: var(--gold);  border: 1px solid #3a2800; }
+.diff.hard { background: #1a0508; color: var(--red);   border: 1px solid #3a1015; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-left > * { animation: fadeUp 0.6s ease both; }
+.hero-left > *:nth-child(1) { animation-delay: 0.05s; }
+.hero-left > *:nth-child(2) { animation-delay: 0.12s; }
+.hero-left > *:nth-child(3) { animation-delay: 0.20s; }
+.hero-left > *:nth-child(4) { animation-delay: 0.28s; }
+
+/* ─── INSTALL BANNER ─── */
+#installBanner {
+  display: none; position: fixed; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface2); border: 1px solid var(--gold);
+  border-radius: 8px; padding: 14px 20px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 200; max-width: 380px; width: calc(100% - 32px);
+  animation: fadeUp 0.4s ease both;
+}
+#installBanner.hidden { display: none !important; }
+#installBanner p { font-size: 13px; color: var(--text); flex: 1; }
+#installBanner p span { color: var(--gold); font-weight: 700; }
+.install-btn {
+  background: var(--gold); color: #000; border: none;
+  padding: 7px 14px; border-radius: 4px; font-family: var(--sans);
+  font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.install-dismiss {
+  background: none; border: none; color: var(--muted);
+  font-size: 18px; cursor: pointer; line-height: 1; padding: 2px;
+}
+
+@media(max-width:640px) {
+  .books-grid { grid-template-columns: 1fr; }
+  .tips-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">PyPath</div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showTab('home',this)">Home</button>
+    <button class="nav-link" onclick="showTab('roadmap',this)">Roadmap</button>
+    <button class="nav-link" onclick="showTab('books',this)">Books</button>
+    <button class="nav-link" onclick="showTab('questions',this)">Questions</button>
+  </div>
+</nav>
+
+<!-- ═══ HOME ═══ -->
+<section id="tab-home" class="page-section active">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Python Practice Path</div>
+      <h1>Learn Python<br>by <em>Doing.</em></h1>
+      <p>A structured roadmap, curated books, and 40+ practice questions — ordered exactly how you should learn them. Track your progress as you go.</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-val">10</div>
+          <div class="stat-label">Topics</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="totalQCount">40</div>
+          <div class="stat-label">Questions</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">3</div>
+          <div class="stat-label">Books</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="homeCompleted">0</div>
+          <div class="stat-label">Done</div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-ring-wrap">
+      <div class="ring-inner">
+        <svg class="ring" width="96" height="96" viewBox="0 0 96 96">
+          <circle class="track" cx="48" cy="48" r="42"/>
+          <circle class="fill" id="ringFill" cx="48" cy="48" r="42"/>
+        </svg>
+        <div class="ring-pct" id="ringPct">0%</div>
+      </div>
+      <div class="ring-count" id="ringCount">0 / 0 done</div>
+    </div>
+  </div>
+
+  <!-- Quick start cards -->
+  <div class="section-wrap" style="padding-top:0">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:40px;">
+      <div class="book-card primary" style="cursor:pointer" onclick="showTab('roadmap',document.querySelectorAll('.nav-link')[1])">
+        <div style="font-size:28px;margin-bottom:12px;">🗺️</div>
+        <h3 style="margin-bottom:6px">View Roadmap</h3>
+        <p>See the full learning path — what to learn in what order and why.</p>
+      </div>
+      <div class="book-card secondary" style="cursor:pointer" onclick="showTab('questions',document.querySelectorAll('.nav-link')[3])">
+        <div style="font-size:28px;margin-bottom:12px;">✏️</div>
+        <h3 style="margin-bottom:6px">Start Practicing</h3>
+        <p>40+ questions ordered by concept. Check them off as you finish.</p>
+      </div>
+      <div class="book-card supplement" style="cursor:pointer" onclick="showTab('books',document.querySelectorAll('.nav-link')[2])">
+        <div style="font-size:28px;margin-bottom:12px;">📚</div>
+        <h3 style="margin-bottom:6px">Book Guides</h3>
+        <p>Which books to read, in what order, and how to use them.</p>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;border-left:3px solid var(--gold);">
+      <div style="font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;">How to Use This App</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:4px;">1. Read the Roadmap</div><div style="font-size:12px;color:var(--muted2);">Understand the order topics should be learned. Don't skip ahead.</div></div>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:4px;">2. Pick a Book</div><div style="font-size:12px;color:var(--muted2);">Start with Python Crash Course. Read one chapter, then practice.</div></div>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:4px;">3. Solve Questions</div><div style="font-size:12px;color:var(--muted2);">Work through matching questions. Check them off when done.</div></div>
+        <div><div style="font-size:13px;font-weight:700;margin-bottom:4px;">4. Track Progress</div><div style="font-size:12px;color:var(--muted2);">Your progress saves automatically in the browser.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ROADMAP ═══ -->
+<section id="tab-roadmap" class="page-section">
+  <div class="section-wrap">
+    <div class="section-title-row">
+      <h2>Learning <span>Roadmap</span></h2>
+      <div class="section-sub">Topics in exact order — each one builds on the previous. Don't skip.</div>
+    </div>
+    <div class="roadmap">
+      <div class="roadmap-item">
+        <div class="roadmap-num">01</div>
+        <div class="roadmap-content">
+          <h3>Print & Variables</h3>
+          <p>Foundation of everything. Learn how Python outputs text, stores data in variables, and handles basic data types (int, float, str, bool).</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">print()</span>
+            <span class="tag concept">variables</span>
+            <span class="tag concept">data types</span>
+            <span class="tag practice">4 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">02</div>
+        <div class="roadmap-content">
+          <h3>Input & Type Conversion</h3>
+          <p>Make your programs interactive. Learn input(), and why you must convert types — input always returns a string, even if user types a number.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">input()</span>
+            <span class="tag concept">int() float() str()</span>
+            <span class="tag practice">3 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">03</div>
+        <div class="roadmap-content">
+          <h3>If / Elif / Else</h3>
+          <p>Decision making. Programs that can choose different paths based on conditions. Master comparison operators and boolean logic here.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">if / elif / else</span>
+            <span class="tag concept">== != &gt; &lt; and or</span>
+            <span class="tag practice">5 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">04</div>
+        <div class="roadmap-content">
+          <h3>Loops — for & while</h3>
+          <p>Repetition and automation. for loops with range(), while loops with conditions, break and continue. This is where programming starts feeling powerful.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">for / while</span>
+            <span class="tag concept">range() break continue</span>
+            <span class="tag practice">7 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">05</div>
+        <div class="roadmap-content">
+          <h3>Functions</h3>
+          <p>Reusable blocks of code. def, parameters, return values, and scope. Good functions make you write less code and avoid repeating yourself.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">def / return</span>
+            <span class="tag concept">parameters / scope</span>
+            <span class="tag concept">recursion</span>
+            <span class="tag practice">6 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">06</div>
+        <div class="roadmap-content">
+          <h3>Strings</h3>
+          <p>Text manipulation. Slicing, methods like .split() .join() .replace(), and string formatting. Most real programs deal heavily with text.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">slicing</span>
+            <span class="tag concept">string methods</span>
+            <span class="tag concept">f-strings</span>
+            <span class="tag practice">5 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">07</div>
+        <div class="roadmap-content">
+          <h3>Lists</h3>
+          <p>Ordered collections of data. Indexing, slicing, append/remove, and looping over lists. Most common data structure you'll use daily.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">lists / indexing</span>
+            <span class="tag concept">append remove sort</span>
+            <span class="tag concept">list comprehension</span>
+            <span class="tag practice">6 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">08</div>
+        <div class="roadmap-content">
+          <h3>Dictionaries & Sets</h3>
+          <p>Key-value storage and unique collections. Essential for counting, grouping, and lookups. Much faster than lists for searching by name.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">dict / set</span>
+            <span class="tag concept">.items() .keys() .get()</span>
+            <span class="tag practice">4 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">09</div>
+        <div class="roadmap-content">
+          <h3>File Handling</h3>
+          <p>Read from and write to files on disk. open(), with statements, and modes ('r','w','a'). Makes your programs actually save data between runs.</p>
+          <div class="roadmap-tags">
+            <span class="tag concept">open() / with</span>
+            <span class="tag concept">read write append</span>
+            <span class="tag practice">3 questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-num">10</div>
+        <div class="roadmap-content">
+          <h3>Mini Projects</h3>
+          <p>Combine everything. Build real, working programs from scratch. This is where concepts click — when you build something end-to-end.</p>
+          <div class="roadmap-tags">
+            <span class="tag project">Number Guessing Game</span>
+            <span class="tag project">To-Do List</span>
+            <span class="tag project">Report Card</span>
+            <span class="tag project">Word Counter</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;">
+      <div style="font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:14px;">⏱ Time Estimate Per Topic</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;font-size:12px;">
+        <div style="color:var(--muted2)">01 Variables — <span style="color:var(--text)">1–2 days</span></div>
+        <div style="color:var(--muted2)">02 Input — <span style="color:var(--text)">1 day</span></div>
+        <div style="color:var(--muted2)">03 If/Else — <span style="color:var(--text)">2–3 days</span></div>
+        <div style="color:var(--muted2)">04 Loops — <span style="color:var(--text)">3–4 days</span></div>
+        <div style="color:var(--muted2)">05 Functions — <span style="color:var(--text)">3–4 days</span></div>
+        <div style="color:var(--muted2)">06 Strings — <span style="color:var(--text)">2–3 days</span></div>
+        <div style="color:var(--muted2)">07 Lists — <span style="color:var(--text)">3–4 days</span></div>
+        <div style="color:var(--muted2)">08 Dicts — <span style="color:var(--text)">2–3 days</span></div>
+        <div style="color:var(--muted2)">09 Files — <span style="color:var(--text)">2 days</span></div>
+        <div style="color:var(--muted2)">10 Projects — <span style="color:var(--text)">1–2 weeks</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BOOKS ═══ -->
+<section id="tab-books" class="page-section">
+  <div class="section-wrap">
+    <div class="section-title-row">
+      <h2>Recommended <span>Books</span></h2>
+      <div class="section-sub">Read in this order. Don't buy all at once — finish one, then move.</div>
+    </div>
+
+    <div class="books-grid">
+      <!-- PCC -->
+      <div class="book-card primary">
+        <span class="book-badge primary">Start Here — Book 1</span>
+        <h3>Python Crash Course</h3>
+        <div class="book-author">by Eric Matthes · 3rd Edition</div>
+        <p>The best beginner book. Teaches concepts cleanly, then immediately gives you exercises. Part 2 has three full projects: a game, data visualizations, and a web app.</p>
+        <ul class="book-pros">
+          <li>Has Try-It-Yourself exercises after every section</li>
+          <li>Three end-of-book projects to build real things</li>
+          <li>Same topic order as this roadmap</li>
+          <li>Doesn't waste pages on theory — gets to code fast</li>
+        </ul>
+        <div style="margin-top:14px;font-size:12px;color:var(--muted2);">
+          <strong style="color:var(--text)">How to use:</strong> Read one chapter → do book exercises → do matching questions from this app.
+        </div>
+      </div>
+
+      <!-- Python Workout -->
+      <div class="book-card secondary">
+        <span class="book-badge secondary">Book 2 — After Functions</span>
+        <h3>Python Workout</h3>
+        <div class="book-author">by Reuven M. Lerner</div>
+        <p>Pure exercise book — exactly what you asked for. 50 problems, each with the question, hints, full solution, and explanation of <em>why</em> that approach works.</p>
+        <ul class="book-pros">
+          <li>Problem → Hint → Solution → Explanation format</li>
+          <li>Tells you what to think about before you start</li>
+          <li>Covers strings, lists, dicts, files, functions deeply</li>
+          <li>Closest book to "questions + advice + answers"</li>
+        </ul>
+        <div style="margin-top:14px;font-size:12px;color:var(--muted2);">
+          <strong style="color:var(--text)">When:</strong> Start after finishing Loops & Functions in PCC.
+        </div>
+      </div>
+
+      <!-- Automate -->
+      <div class="book-card supplement">
+        <span class="book-badge supplement">Book 3 — Real World</span>
+        <h3>Automate the Boring Stuff</h3>
+        <div class="book-author">by Al Sweigart <span class="free-badge">Free Online</span></div>
+        <p>Practical, project-focused. Teaches you to automate Excel, PDFs, web scraping, scheduling, and more. No fluff — just "here's a problem, here's how to solve it with Python."</p>
+        <ul class="book-pros">
+          <li>Free at automatetheboringstuff.com</li>
+          <li>Real-world projects you'll actually use</li>
+          <li>Great for motivation — builds things you can show people</li>
+          <li>Each chapter is standalone, pick what interests you</li>
+        </ul>
+        <a class="book-link" href="https://automatetheboringstuff.com" target="_blank" rel="noopener">automatetheboringstuff.com ↗</a>
+      </div>
+
+      <!-- Exercises for Programmers -->
+      <div class="book-card" style="border-top:3px solid var(--muted);">
+        <span class="book-badge" style="background:#1a1a1a;color:var(--muted2);border-color:var(--border)">Bonus — Problem Book</span>
+        <h3>Exercises for Programmers</h3>
+        <div class="book-author">by Brian P. Hogan</div>
+        <p>57 progressively harder problems. Language-agnostic, you solve in Python. Uniquely tells you what constraints to think about before you code — good for developing problem-solving instincts.</p>
+        <ul class="book-pros">
+          <li>Challenges are very practical (calculators, converters, games)</li>
+          <li>Gives you thinking prompts, not just problems</li>
+          <li>Good bridge between beginner and intermediate</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div style="margin-top:40px;">
+      <div style="font-size:11px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:16px;">Study Tips</div>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-icon">🔁</div>
+          <h4>Read Then Code Immediately</h4>
+          <p>Don't read a whole chapter passively. Read one section, close the book, type the code from scratch. Typing it yourself is what builds memory.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">🚫</div>
+          <h4>Don't Copy-Paste Solutions</h4>
+          <p>If you're stuck, look at the solution to understand it, then close it and re-write it without looking. That's the only way it sticks.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">⏱️</div>
+          <h4>1 Hour Daily &gt; 8 Hours Weekend</h4>
+          <p>Consistency beats intensity. 1 hour every day for 3 months is worth more than studying 8 hours on weekends only.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">🐛</div>
+          <h4>Read Error Messages Fully</h4>
+          <p>Most beginners ignore the error. Python's errors tell you exactly what went wrong and which line. Train yourself to read them before Googling.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">📓</div>
+          <h4>Keep a Code Journal</h4>
+          <p>Write down one new thing you learned each session in your own words. Forces you to actually understand it, not just recognize it.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">🌐</div>
+          <h4>HackerRank for Extra Drills</h4>
+          <p>After finishing loops and functions, do the Python Easy track on HackerRank.com. Free, graded, and has hundreds of problems ordered by difficulty.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ QUESTIONS ═══ -->
+<section id="tab-questions" class="page-section">
+  <div class="section-wrap">
+    <div class="section-title-row">
+      <h2>Practice <span>Questions</span></h2>
+      <div class="section-sub">Click any question to mark it done. Progress saves automatically.</div>
+    </div>
+    <div class="q-controls">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">Done</button>
+      <button class="reset-btn" onclick="resetProgress()">Reset All</button>
+    </div>
+    <div class="q-sections" id="qSections"></div>
+  </div>
+</section>
+
+<!-- INSTALL BANNER -->
+<div id="installBanner" class="hidden">
+  <p>Install <span>PyPath</span> as an app for offline access.</p>
+  <button class="install-btn" id="installBtn">Install</button>
+  <button class="install-dismiss" onclick="document.getElementById('installBanner').classList.add('hidden')">✕</button>
+</div>
+
+<script>
+/* ─── DATA ─── */
+const QUESTIONS = [
+  { section:"Print & Variables", qs:[
+    {t:"Print your name, age, and city on separate lines.",h:"print()",d:"easy"},
+    {t:"Store your name in a variable and print a greeting using it.",h:"var = 'value'",d:"easy"},
+    {t:"Swap two variables (a=5, b=10) and print both after swapping.",h:"temp or tuple swap",d:"easy"},
+    {t:"Take two numbers, compute add/subtract/multiply/divide and print each.",h:"+ - * / // %",d:"easy"},
+  ]},
+  { section:"Input & Type Conversion", qs:[
+    {t:"Ask for name and age, print: 'Hello [name], you are [age] years old.'",h:"input(), str()",d:"easy"},
+    {t:"Ask for two numbers and print their sum. Careful with types.",h:"int(input())",d:"easy"},
+    {t:"Ask for temperature in Celsius and convert to Fahrenheit.",h:"F = C * 9/5 + 32",d:"easy"},
+  ]},
+  { section:"If / Elif / Else", qs:[
+    {t:"Check if a number is positive, negative, or zero.",h:"if / elif / else",d:"easy"},
+    {t:"Ask for marks and print grade: A(≥90), B(≥75), C(≥60), D(≥45), Fail(<45).",h:"chain elif",d:"easy"},
+    {t:"Ask for a year and check if it's a leap year.",h:"divisible by 4, 100, 400",d:"med"},
+    {t:"Check if a number entered by user is even or odd.",h:"% operator",d:"easy"},
+    {t:"Take 3 numbers and print the largest without using max().",h:"nested if",d:"med"},
+  ]},
+  { section:"Loops — for & while", qs:[
+    {t:"Print numbers 1 to 20 using a for loop.",h:"range(1, 21)",d:"easy"},
+    {t:"Print multiplication table of any number entered by user.",h:"for i in range(1, 11)",d:"easy"},
+    {t:"Sum all numbers from 1 to 100 using a while loop.",h:"while n <= 100",d:"easy"},
+    {t:"Print all even numbers between 1 and 50.",h:"range(2,51,2) or if n%2==0",d:"easy"},
+    {t:"Print the Fibonacci sequence up to 10 terms.",h:"a, b = 0, 1 inside loop",d:"med"},
+    {t:"Find factorial of a number using a loop (no recursion).",h:"result *= i",d:"med"},
+    {t:"Print a right-angle star pattern of 5 rows using nested loops.",h:"nested for loops",d:"med"},
+  ]},
+  { section:"Functions", qs:[
+    {t:"Write a function that takes a name and prints a greeting.",h:"def greet(name):",d:"easy"},
+    {t:"Write a function that returns the square of a number.",h:"return n*n",d:"easy"},
+    {t:"Write a function is_prime(n) that returns True or False.",h:"check divisors up to √n",d:"med"},
+    {t:"Write a function that takes two numbers and returns the larger one.",h:"no max() allowed",d:"easy"},
+    {t:"Write a calculator function: takes two numbers and an operator (+,-,*,/).",h:"def calc(a, b, op):",d:"med"},
+    {t:"Write a recursive function to compute factorial.",h:"if n==1: return 1",d:"med"},
+  ]},
+  { section:"Strings", qs:[
+    {t:"Reverse a string without using slicing[::-1] — use a loop.",h:"build reversed string char by char",d:"med"},
+    {t:"Check if a string is a palindrome.",h:"compare string with its reverse",d:"med"},
+    {t:"Count the number of vowels in a string entered by user.",h:"'aeiouAEIOU'",d:"easy"},
+    {t:"Convert a sentence to title case without using .title().",h:".split() then .capitalize()",d:"med"},
+    {t:"Remove all spaces from a string without using .replace().",h:"loop and skip space chars",d:"med"},
+  ]},
+  { section:"Lists", qs:[
+    {t:"Create a list of 5 fruits, add one, remove one, print the result.",h:".append() .remove()",d:"easy"},
+    {t:"Find the largest and smallest in a list without max()/min().",h:"loop and compare",d:"med"},
+    {t:"Reverse a list without .reverse() or slicing.",h:"loop from end",d:"med"},
+    {t:"Remove duplicate elements keeping original order.",h:"seen = [] — check before append",d:"med"},
+    {t:"Linear search: return the index of a target or -1 if not found.",h:"enumerate() or index variable",d:"med"},
+    {t:"Sort a list of numbers using Bubble Sort.",h:"nested for with swap",d:"hard"},
+  ]},
+  { section:"Dictionaries & Sets", qs:[
+    {t:"Create a dict of 5 students with marks, print each name with their grade.",h:"for k,v in dict.items()",d:"easy"},
+    {t:"Count frequency of each character in a string using a dictionary.",h:"dict.get(char, 0) + 1",d:"med"},
+    {t:"Merge two dicts — if same key exists, add their values.",h:".get() with default 0",d:"med"},
+    {t:"Find common elements between two lists using sets.",h:"set(a) & set(b)",d:"easy"},
+  ]},
+  { section:"File Handling", qs:[
+    {t:"Create a file, write 5 lines to it, then read and print all lines.",h:"open('file','w') and open('file','r')",d:"easy"},
+    {t:"Count the number of words in a text file.",h:".read().split()",d:"med"},
+    {t:"Copy the contents of one file to another.",h:"read from one, write to other",d:"med"},
+  ]},
+  { section:"Mini Projects", qs:[
+    {t:"Number Guessing Game: computer picks random 1–100, user guesses, give higher/lower hints.",h:"import random, while loop",d:"med"},
+    {t:"To-Do List: add, view, delete tasks in a loop menu.",h:"while True + if/elif menu",d:"med"},
+    {t:"Student Report Card: input name + 5 subject marks, compute total, average, grade, pass/fail.",h:"combine lists, functions, if/else",d:"hard"},
+    {t:"Word Counter: user inputs a paragraph — print word count, unique words, most repeated.",h:"dict for frequency, sorted()",d:"hard"},
+  ]},
+];
+
+/* ─── STATE ─── */
+let done = JSON.parse(localStorage.getItem('pyDone2') || '{}');
+let filter = 'all';
+
+function save() { localStorage.setItem('pyDone2', JSON.stringify(done)); }
+function qId(s,q) { return `${s}-${q}`; }
+
+function totalQ() { return QUESTIONS.reduce((n,s) => n+s.qs.length, 0); }
+function doneCount() { return Object.values(done).filter(Boolean).length; }
+
+/* ─── PROGRESS ─── */
+function updateProgress() {
+  const total = totalQ();
+  const d = doneCount();
+  const pct = total ? Math.round(d/total*100) : 0;
+  const circ = 2 * Math.PI * 42; // r=42
+  const offset = circ - (d/total)*circ;
+
+  document.getElementById('ringFill').setAttribute('stroke-dasharray', circ);
+  document.getElementById('ringFill').setAttribute('stroke-dashoffset', offset);
+  document.getElementById('ringPct').textContent = pct + '%';
+  document.getElementById('ringCount').textContent = `${d} / ${total} done`;
+  document.getElementById('homeCompleted').textContent = d;
+  document.getElementById('totalQCount').textContent = total;
+}
+
+/* ─── RENDER QUESTIONS ─── */
+function renderQuestions() {
+  const container = document.getElementById('qSections');
+  container.innerHTML = '';
+
+  QUESTIONS.forEach((sec, si) => {
+    const secDone = sec.qs.filter((_,qi) => done[qId(si,qi)]).length;
+    const hasVisible = sec.qs.some((_,qi) => {
+      const isDone = !!done[qId(si,qi)];
+      return filter==='all' || (filter==='done'&&isDone) || (filter==='pending'&&!isDone);
+    });
+    if (!hasVisible) return;
+
+    const block = document.createElement('div');
+    block.className = 'q-block open';
+
+    block.innerHTML = `
+      <div class="q-block-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="q-block-num">0${si+1}</span>
+        <span class="q-block-title">${sec.section}</span>
+        <span class="q-block-prog ${secDone===sec.qs.length?'done':''}" id="prog-${si}">${secDone}/${sec.qs.length}</span>
+        <span class="chevron">▶</span>
+      </div>
+      <div class="q-list" id="ql-${si}"></div>
+    `;
+
+    const list = block.querySelector(`#ql-${si}`);
+    sec.qs.forEach((q, qi) => {
+      const id = qId(si,qi);
+      const isDone = !!done[id];
+      if (filter==='done' && !isDone) return;
+      if (filter==='pending' && isDone) return;
+
+      const item = document.createElement('div');
+      item.className = 'q-item' + (isDone?' done':'');
+      item.innerHTML = `
+        <div class="check">${isDone?'✓':''}</div>
+        <div class="q-body">
+          <div class="q-num">Q${qi+1}</div>
+          <div class="q-text">${q.t}</div>
+          <div class="q-hint">hint: ${q.h}</div>
+        </div>
+        <div class="diff ${q.d}">${q.d}</div>
+      `;
+      item.onclick = () => {
+        done[id] = !done[id];
+        save();
+        item.classList.toggle('done');
+        item.querySelector('.check').textContent = done[id]?'✓':'';
+        item.querySelector('.q-text').style.textDecoration = done[id]?'line-through':'';
+        item.querySelector('.q-hint').style.color = done[id]?'#2a3a30':'';
+        const secD = sec.qs.filter((_,i) => done[qId(si,i)]).length;
+        const progEl = document.getElementById(`prog-${si}`);
+        progEl.textContent = `${secD}/${sec.qs.length}`;
+        progEl.className = 'q-block-prog' + (secD===sec.qs.length?' done':'');
+        updateProgress();
+      };
+      list.appendChild(item);
+    });
+    container.appendChild(block);
+  });
+  updateProgress();
+}
+
+function setFilter(f, btn) {
+  filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuestions();
+}
+
+function resetProgress() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  done = {};
+  save();
+  renderQuestions();
+  updateProgress();
+}
+
+/* ─── TABS ─── */
+function showTab(id, btn) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if (id === 'questions') renderQuestions();
+}
+
+/* ─── PWA INSTALL ─── */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('installBanner');
+  banner.classList.remove('hidden');
+  banner.style.display = 'flex';
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').classList.add('hidden');
+});
+
+/* ─── INIT ─── */
+updateProgress();
+</script>
+</body>
+</html>
