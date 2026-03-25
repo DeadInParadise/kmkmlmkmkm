@@ -357,15 +357,15 @@ svg.ring .fill {
 <nav>
   <div class="nav-brand">PyPath</div>
   <div class="nav-links">
-    <button class="nav-link active" onclick="showTab('home',this)">Home</button>
+    <button class="nav-link" onclick="showTab('home',this)">Home</button>
     <button class="nav-link" onclick="showTab('roadmap',this)">Roadmap</button>
     <button class="nav-link" onclick="showTab('books',this)">Books</button>
-    <button class="nav-link" onclick="showTab('questions',this)">Questions</button>
+    <button class="nav-link active" onclick="showTab('questions',this)">Questions</button>
   </div>
 </nav>
 
 <!-- ═══ HOME ═══ -->
-<section id="tab-home" class="page-section active">
+<section id="tab-home" class="page-section">
   <div class="hero">
     <div class="hero-left">
       <div class="hero-eyebrow">Python Practice Path</div>
@@ -699,7 +699,7 @@ svg.ring .fill {
 </section>
 
 <!-- ═══ QUESTIONS ═══ -->
-<section id="tab-questions" class="page-section">
+<section id="tab-questions" class="page-section active">
   <div class="section-wrap">
     <div class="section-title-row">
       <h2>Practice <span>Questions</span></h2>
@@ -927,7 +927,7 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 });
 
 /* ─── INIT ─── */
-updateProgress();
+renderQuestions();
 </script>
 </body>
 </html>
